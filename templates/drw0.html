@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+{% load static %}
+{% load extra %}
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+
+        <title>Airwaybill (Active) | Material Tracker Application</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
+        <meta content="Coderthemes" name="author" />
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="assets/images/favicon.ico">
+
+        <style media="screen">
+          td, p {
+            margin-bottom: 0px !important;
+          }
+        </style>
+
+        <!-- App css -->
+        <link href="{% static "assets/css/icons.min.css" %}" rel="stylesheet" type="text/css" />
+        <link href="{% static "assets/css/app-modern.min.css" %}" rel="stylesheet" type="text/css" id="light-style" />
+        <link href="{% static "assets/css/app-modern-dark.min.css" %}" rel="stylesheet" type="text/css" id="dark-style" />
+
+        <!-- DataTable css -->
+        <link href="{% static "assets/css/vendor/dataTables.bootstrap5.css" %}" rel="stylesheet" type="text/css" />
+        <link href="{% static "assets/css/vendor/responsive.bootstrap5.css" %}" rel="stylesheet" type="text/css" />
+        <link href="{% static "assets/css/vendor/buttons.bootstrap5.css" %}" rel="stylesheet" type="text/css" />
+        <link href="{% static "assets/css/vendor/select.bootstrap5.css" %}" rel="stylesheet" type="text/css" />
+        <link href="{% static "assets/css/vendor/fixedHeader.bootstrap5.css" %}" rel="stylesheet" type="text/css" />
+        <link href="{% static "assets/css/vendor/fixedColumns.bootstrap5.css" %}" rel="stylesheet" type="text/css" />
+
+    </head>
+
+    <body class="loading" data-layout-config='{"leftSideBarTheme":"dark","layoutBoxed":false, "leftSidebarCondensed":false, "leftSidebarScrollable":false,"darkMode":false, "showRightSidebarOnStart": true}'>
+        <!-- Begin page -->
+        <div class="wrapper">
+            <!-- ========== Left Sidebar Start ========== -->
+
+            <!-- Left Sidebar End -->
+
+            <!-- ============================================================== -->
+            <!-- Start Page Content here -->
+            <!-- ============================================================== -->
+
+            <div class="content-page">
+                <div class="content">
+                    <!-- Topbar Start -->
+
+                    <!-- end Topbar -->
+
+                    <!-- Start Content-->
+                    <div class="container-fluid">
+
+                        <!-- start page title -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-title-box">
+                                    <div class="page-title-right d-flex">
+                                      <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#new_awb_modal" title="New Airwaybill"><i class="mdi mdi-plus-circle"></i></button>
+                                    </div>
+                                    <h4 class="page-title"><i class="mdi mdi-table"></i> Airwaybill (Active)</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                              <div class="card">
+                                <div class="card-body">
+                                  <table id="awb_table" class="table table-sm nowrap table-responsive row-border order-column w-100 small">
+                                    <thead>
+                                        <tr>
+                                            <th>HAWB / BL / TWB No</th>
+                                            <th>Status</th>
+                                            <th>Invoice(s)</th>
+                                            <th>ETA</th>
+                                            <th>Delivered Date</th>
+                                            <th>Payment Due Date</th>
+                                            <th>Created Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                      {% for awb in awbs %}
+                                        <tr>
+                                            <td><b><a href="/doc/awb/{{awb.id}}">{{awb.no}}</a></b></td>
+                                            <td>
+                                              {% if status_of_awbs|index:forloop.counter0 == 'Purchase' %}<b class="text-warning">Purchase</b>
+                                              {% elif status_of_awbs|index:forloop.counter0 == 'Import' %}<b style="color:#a475ff">Import</b>
+                                              {% elif status_of_awbs|index:forloop.counter0 == 'Incoming' %}<b style="color:#ec7e7e">Incoming</b>
+                                              {% elif status_of_awbs|index:forloop.counter0 == 'Store' %}<b class="text-info">Store</b>
+                                              {% elif status_of_awbs|index:forloop.counter0 == 'Complete' %}<b class="text-success">Complete</b>
+                                              {% elif status_of_awbs|index:forloop.counter0 == 'Cancel' %}<b class="text-danger">Cancel</b>
+                                              {% elif status_of_awbs|index:forloop.counter0 == 'Error' %}<b class="text-dark">Error</b>
+                                              {% endif %}
+                                            </td>
+                                            <td>
+                                              {% if invs_of_awbs|index:forloop.counter0 %}
+                                              {{invs_of_awbs|index:forloop.counter0|linebreaks}}
+                                              {% else %}<p class="text-muted font-12"><i>&nbsp;&nbsp;&nbsp;No Invoice..</i></p>{% endif %}
+                                            </td>
+                                            <td data-order="{{awb.eta|date:"U"}}">{% if awb.eta %}{{awb.eta}}{% else %}<p class="text-muted font-12"><i>Not Arrived..</i></p>{% endif %}</td>
+                                            <td data-order="{{awb.dlv_date|date:"U"}}">{% if awb.dlv_date %}{{awb.dlv_date}}{% else %}<p class="text-muted font-12"><i>Not Arrived..</i></p>{% endif %}</td>
+                                            <td data-order="{{awb.payment_due_date|date:"U"}}">{% if awb.is_adv_paid %}Advance Paid{% elif awb.payment_due_date %}{{awb.payment_due_date}}{% else %}<p class="text-muted font-12"><i>Not Defined..</i></p>{% endif %}</td>
+                                            <td data-order="{{awb.date_published|date:"U"}}">{{awb.date_published}}</td>
+                                        </tr>
+                                      {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+                        <!-- end page title -->
+
+                    </div> <!-- container -->
+
+                </div> <!-- content -->
+
+                <!-- Footer Start -->
+
+                <!-- end Footer -->
+
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- End Page content -->
+            <!-- ============================================================== -->
+
+        </div>
+        <!-- END wrapper -->
+
+        <!-- New Airwaybill -->
+        <div id="new_awb_modal" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header modal-colored-header bg-primary">
+                        <h4 class="modal-title"><i class='mdi mdi-plus-circle me-1'></i> New Airwaybill</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                          <div class="col-12">
+                              <div class="mb-3">
+                                <label class="form-label">HAWB / BL / TWB No</label>
+                                <input type="text" class="form-control" name="awb_no" id="awb_no" autocomplete="off">
+                              </div>
+                          </div>
+                        </div>
+                        <p class="text-danger text-center small" id="invalid_text"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="new_awb()">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+
+        <!-- /End-bar -->
+
+
+        <!-- bundle -->
+        <script src="{% static "assets/js/vendor.min.js" %}"></script>
+        <script src="{% static "assets/js/app.min.js" %}"></script>
+        <script src="{% static "custom/custom.js" %}"></script>
+        <!-- DataTable -->
+        <script src="{% static "assets/js/vendor/jquery.dataTables.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/dataTables.bootstrap5.js" %}"></script>
+        <script src="{% static "assets/js/vendor/dataTables.responsive.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/responsive.bootstrap5.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/dataTables.buttons.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/buttons.bootstrap5.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/buttons.html5.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/buttons.flash.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/buttons.print.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/dataTables.keyTable.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/dataTables.select.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/fixedColumns.bootstrap5.min.js" %}"></script>
+        <script src="{% static "assets/js/vendor/fixedHeader.bootstrap5.min.js" %}"></script>
+
+        <!-- Dropzone -->
+        <script src="{% static "assets/js/vendor/dropzone.min.js" %}"></script>
+        <script src="{% static "assets/js/ui/component.fileupload.js" %}"></script>
+
+        <script type="text/javascript">
+        $(document).ready(function (){
+            var table = $('#awb_table').DataTable( {
+                "order": [[ 0, "asc" ]],
+                'iDisplayLength': 25,
+                "scrollX": true,
+            });
+        });
+
+        function new_awb(){
+          remove_valids(['awb_no']);
+          set_text_empty("invalid_text");
+          var awb_no = $('#awb_no').val();
+          if(awb_no.length == 0){
+            invalid("awb_no");
+            set_text_value("invalid_text","Please fill 'Airwaybill No'.");
+          }  else {
+            valid("awb_no");
+            $.ajax({
+              url: '/new_awb/',
+              data: {
+                'awb_no': awb_no,
+              },
+              dataType: 'json',
+              success: function (data) {
+                location.href = '/doc/awb/' + data.awb_id;
+              }
+            });
+          }
+        }
+        </script>
+    </body>
+</html>
